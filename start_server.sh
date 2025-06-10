@@ -73,12 +73,12 @@ fi
 # Aguarda um pouco para o processo iniciar
 sleep 5
 
-# Captura o PID do processo DayZServer_x64.exe iniciado pelo Proton
-SERVER_PID=$(pgrep -u "$USER" -f "$SERVER_EXE" | head -n 1)
+# Captura todos os PIDs do processo real (filhos do Proton)
+SERVER_PIDS=$(pgrep -u "$USER" -f "$SERVER_EXE")
 
 # Verifica se o PID foi capturado com sucesso
-if [[ -n "$SERVER_PID" ]]; then
-    echo "✅ Servidor iniciado com PID: $SERVER_PID"
+if [[ -n "$SERVER_PIDS" ]]; then
+    echo "✅ Servidor iniciado com os PIDs: $SERVER_PIDS"
 else
     echo "❌ Não foi possível capturar o PID do servidor."
 fi
@@ -120,17 +120,24 @@ sleep "$waitSecs"
 # Encerra processos (ajuste conforme o nome do processo real)
 echo "Encerrando servidor..."
 
-kill "$SERVER_PID"
-sleep 2
-if ps -p "$SERVER_PID" > /dev/null; then
-    kill -9 "$SERVER_PID"
+if [[ -n "$SERVER_PIDS" ]]; then
+    echo "🛑 Encerrando os seguintes PIDs: $SERVER_PIDS"
+    kill $SERVER_PIDS
+    sleep 2
+    for pid in $SERVER_PIDS; do
+        if ps -p "$pid" > /dev/null; then
+            kill -9 "$pid"
+        fi
+    done
+else
+    echo "⚠️ Nenhum processo do servidor encontrado para encerrar."
 fi
 
-echo "$(date +%T) Servidor (PID $SERVER_PID) encerrado, reiniciando..."
+echo "$(date +%T) Servidor reiniciando..."
 
 # Aguarda 10 segundos antes de reiniciar
 sleep 10
 
 # ===== Reinicia =====
-exec "$SCRIPT_DIR/$MOD_ID_FILE/start_server.sh"
+exec "$SCRIPT_DIR/start_server.sh"
 

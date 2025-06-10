@@ -12,7 +12,7 @@ mkdir -p "$(dirname "$CACHE_FILE")"
 touch "$CACHE_FILE"
 
 echo "🚀 Iniciando verificação contínua de atualizações de mods Steam Workshop..."
-echo "⏱️ Intervalo: a cada 5 minutos"
+echo "⏱️ Intervalo: a cada 10 minutos"
 echo "📅 Início: $(date)"
 echo "------------------------------------------"
 
@@ -91,8 +91,8 @@ EOF
         sleep 2  # Atraso entre as requisições
     done
 
-    echo "🕔 Aguardando 5 minutos para próxima verificação..."
+    echo "🕔 Aguardando 10 minutos para próxima verificação..."
     echo "------------------------------------------"
-    sleep 300
+    sleep 600
 done
 
