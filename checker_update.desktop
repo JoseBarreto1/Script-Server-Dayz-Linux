@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Update Checker
+Comment=Executar script .sh
+Exec=gnome-terminal -- bash -c "~/.steam/steam/steamapps/common/DayZServer/script_server_linux/mod_update_checker.sh; exec bash"
+Icon=utilities-terminal
+Terminal=true
+Type=Application
+
