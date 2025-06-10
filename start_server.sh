@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ===== CONFIGURAÇÕES =====
+# ===== CONFIGURATION =====
 PROTON_DIR="$HOME/.steam/steam/steamapps/common/Proton 9.0 (Beta)"
 PROTON_RUN="$PROTON_DIR/proton"
 SERVER_DIR="$HOME/.steam/steam/steamapps/common/DayZServer"
@@ -16,17 +16,19 @@ SERVER_OTHERS='-dologs -adminlog -netlog -freezecheck'
 CONFIG="-config=serverDZ.cfg"
 PROFILES="-profiles=profiles"
 
-# ===== PREPARA A LISTA DE MODS =====
+# ===== PREPARE MOD LIST =====
 MODS_SUBDIR="mods/"
 
 if [ ! -f "$SCRIPT_DIR/$MOD_ID_FILE" ]; then
-    echo "❌ Arquivo mod_ids.txt não encontrado!"
+    echo "❌ File mod_ids.txt not found!"
     exit 1
 fi
 
 MODS_ID=$(<"$SCRIPT_DIR/$MOD_ID_FILE")
-MODS_ID="${MODS_ID//\"/}"  # Remove aspas
-MODS_ID="${MODS_ID// /}"   # Remove espaços
+MODS_ID="${MODS_ID//\"/}"  # Remove quotes
+MODS_ID="${MODS_ID// /}"   # Remove spaces
+MODS_ID="${MODS_ID//$'\n'/}"  # Remove newlines
+MODS_ID="${MODS_ID//$'\t'/}"  # (Optional) Remove tabs
 
 MODS_PARAM_TEMP=""
 IFS=';' read -ra IDS <<< "$MODS_ID"
@@ -35,93 +37,94 @@ for id in "${IDS[@]}"; do
 done
 
 if [[ -z "$MODS_PARAM_TEMP" ]]; then
-    echo "⚠️ Nenhum mod foi carregado, verifique o arquivo mod_ids.txt"
+    echo "⚠️ No mod was loaded, check the mod_ids.txt file"
     exit 1
 fi
 
-# ===== Remove o último ponto e vírgula =====
+# ===== Remove last semicolon =====
 MODS_PARAM_TEMP="${MODS_PARAM_TEMP::-1}"
 
 MODS="-mod=${MODS_PARAM_TEMP}"
-echo "✅ Todos os mods foram formatados."
+echo "✅ All mods have been formatted."
 
-# ===== PREFIXO E VARIÁVEIS NECESSÁRIAS =====
+# ===== PREFIX AND REQUIRED VARIABLES =====
 STEAM_COMPAT_DATA_PATH="$HOME/.steam/steam/steamapps/compatdata"
 STEAM_COMPAT_CLIENT_INSTALL_PATH="$HOME/.steam/steam"
 
 export STEAM_COMPAT_DATA_PATH
 export STEAM_COMPAT_CLIENT_INSTALL_PATH
 
-# ===== LIMPEZA DE LOGS =====
-echo "🧹 Apagando arquivos .RPT, .log e .mdmp em: $SERVER_DIR/profiles"
+# ===== CLEANUP LOGS =====
+echo "🧹 Deleting .RPT, .log and .mdmp files in: $SERVER_DIR/profiles"
 rm -f "$SERVER_DIR"/profiles/*.RPT "$SERVER_DIR"/profiles/*.ADM "$SERVER_DIR"/profiles/*.log "$SERVER_DIR"/profiles/*.mdmp
-echo "✅ Limpeza concluída."
+echo "✅ Cleanup completed."
 
-# ===== EXECUÇÃO =====
-cd "$SERVER_DIR" || { echo "❌ Não foi possível entrar no diretório do servidor."; exit 1; }
+# ===== EXECUTION =====
+cd "$SERVER_DIR" || { echo "❌ Could not enter server directory."; exit 1; }
 
-echo "🚀 Iniciando servidor DayZ com Proton..."
+echo "🚀 Starting DayZ server with Proton..."
 "$PROTON_RUN" run "./$SERVER_EXE" $CONFIG $PROFILES "$MODS" "$SERVER_MODS" "$SERVER_PORT" "$SERVER_CPU" "$SERVER_OTHERS" &
 
 SERVER_LAUNCH_PID=$!
 
 if ! kill -0 "$SERVER_LAUNCH_PID" 2>/dev/null; then
-    echo "❌ Falha ao iniciar o servidor com Proton."
+    echo "❌ Failed to start server with Proton."
     exit 1
 fi
 
-# Aguarda um pouco para o processo iniciar
+# Wait a bit for the process to start
 sleep 5
 
-# Captura todos os PIDs do processo real (filhos do Proton)
+# Capture all real process PIDs (children of Proton)
 SERVER_PIDS=$(pgrep -u "$USER" -f "$SERVER_EXE")
 
-# Verifica se o PID foi capturado com sucesso
+# Check if PID was successfully captured
 if [[ -n "$SERVER_PIDS" ]]; then
-    echo "✅ Servidor iniciado com os PIDs: $SERVER_PIDS"
+    echo "✅ Server started with PIDs: $SERVER_PIDS"
 else
-    echo "❌ Não foi possível capturar o PID do servidor."
+    echo "❌ Could not capture the server PID."
 fi
-# ===== CÁLCULO DO TEMPO ATÉ O PRÓXIMO REINÍCIO =====
 
-# Obtém hora e minuto atuais
+# ===== TIME UNTIL NEXT RESTART =====
+
+# Get current hour and minute
 nowHour=$((10#$(date +%H)))
 nowMin=$((10#$(date +%M)))
 
-echo "Hora atual: $nowHour:$nowMin"
+echo "Current time: $nowHour:$nowMin"
 
-# Converte hora atual para minutos desde a meia-noite
+# Convert current time to minutes since midnight
 totalNowMins=$((nowHour * 60 + nowMin))
-echo "Minutos desde meia-noite: $totalNowMins"
+echo "Minutes since midnight: $totalNowMins"
 
-# Intervalo de reinício (6 em 6 horas = 360 minutos)
+# Restart interval (every 6 hours = 360 minutes)
 interval=360
 
-# Calcula o próximo horário de reinício em minutos desde a meia-noite
+# Calculate next restart time in minutes since midnight
 nextRestart=$(( (totalNowMins / interval + 1) * interval ))
 
-# Ajusta para o limite do dia (1440 minutos)
+# Adjust for end of day (1440 minutes)
 if [ "$nextRestart" -ge 1440 ]; then
     nextRestart=1440
-    echo "Ajuste para o restart da meia-noite: $nextRestart"
+    echo "Adjusting to midnight restart: $nextRestart"
 fi
 
-# Calcula os minutos restantes até o próximo reinício
+# Calculate remaining minutes until next restart
 waitMins=$((nextRestart - totalNowMins))
-echo "Minutos restantes: $waitMins"
+echo "Remaining minutes: $waitMins"
 
-# Converte para segundos
+# Convert to seconds
 waitSecs=$((waitMins * 60))
-echo "Próximo restart em $waitMins minutos ($waitSecs segundos)."
+echo "Next restart in $waitMins minutes ($waitSecs seconds)."
 
-# Aguarda até o próximo reinício
+# Wait until next restart
 sleep "$waitSecs"
 
-# Encerra processos (ajuste conforme o nome do processo real)
-echo "Encerrando servidor..."
+# Shutdown processes (adjust based on real process name)
+echo "Shutting down server..."
 
 if [[ -n "$SERVER_PIDS" ]]; then
-    echo "🛑 Encerrando os seguintes PIDs: $SERVER_PIDS"
+    echo "🛑 Shutting down the following PIDs: $SERVER_PIDS"
     kill $SERVER_PIDS
     sleep 2
     for pid in $SERVER_PIDS; do
@@ -130,14 +133,13 @@ if [[ -n "$SERVER_PIDS" ]]; then
         fi
     done
 else
-    echo "⚠️ Nenhum processo do servidor encontrado para encerrar."
+    echo "⚠️ No server process found to terminate."
 fi
 
-echo "$(date +%T) Servidor reiniciando..."
+echo "$(date +%T) Server restarting..."
 
-# Aguarda 10 segundos antes de reiniciar
+# Wait 10 seconds before restarting
 sleep 10
 
-# ===== Reinicia =====
+# ===== Restart =====
 exec "$SCRIPT_DIR/start_server.sh"
-

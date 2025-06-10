@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Start Server
+Comment=Executar script .sh
+Exec=gnome-terminal -- bash -c "~/.steam/steam/steamapps/common/DayZServer/script_server_linux/start_server.sh; exec bash"
+Icon=utilities-terminal
+Terminal=true
+Type=Application
+
