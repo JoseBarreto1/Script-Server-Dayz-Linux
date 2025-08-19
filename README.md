@@ -333,6 +333,8 @@ To simplify the project, all mods are in one folder, rather than at the project 
 
 I wrote a python script for a discord bot, which aims to monitor the server status, as well as the number of players online, and this information is displayed in the bot's status.
 
+![Image 5](img/bot.png)
+
 ```
 import discord
 import asyncio
@@ -376,8 +378,8 @@ client.run(TOKEN)
 - python3 bot.py
 ```
 
-![Image 5](img/scripts.png)
+![Image 6](img/scripts.png)
 
 # References:
 
-[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3434068549] complementary guide [/url]
+[complementary guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3434068549)
