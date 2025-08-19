@@ -1,9 +1,13 @@
 # DayZ Server Manager For Linux (with GUI)
 
+![Image 1](img/capa.jpeg)
+
 Over the past few months, I've been dedicating myself to both managing a simple server on Linux and making some mods. For now, this guide will be server-only.
 
 # Start server
 Below is a script that I use to start my server, where I define a folder where all my mods will be (/md) and the server is restarted every 6 hours.
+
+![Image 2](img/start-run.png)
 
 - File: start_server.sh 
 
@@ -158,6 +162,8 @@ exec "$SCRIPT_DIR/start_server.sh"
 
 Below is a shortcut to run the server start script. This shortcut can be placed on the desktop and then executed with just two clicks. Note: You'll need to update your .desktop file to match the path to the start_server.sh script.
 
+![Image 3](img/shortcuts.png)
+
 - File: start_server.desktop
 ```
 [Desktop Entry]
@@ -299,6 +305,8 @@ Type=Application
 
 To simplify the project, all mods are in one folder, rather than at the project root. Similarly, to keep track of which mods are active and which ones I need to load and verify, I created a mod_ids.txt file to centralize its usage for all scripts in use.
 
+![Image 4](img/mods.png)
+
 ```
 3484013890;
 2646817942;
@@ -367,6 +375,8 @@ client.run(TOKEN)
 - pip install python-a2s
 - python3 bot.py
 ```
+
+![Image 5](img/scripts.png)
 
 # References:
 

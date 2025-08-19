@@ -13,7 +13,7 @@ MODS_ID="${MODS_ID//$'\t'/}"  # (Optional) Remove tabs
 
 IFS=';' read -ra IDS <<< "$MODS_ID"
 
-WEBHOOK_URL=""
+WEBHOOK_URL="" # add your discord webhook URL here
 CACHE_FILE="$HOME/.cache/dayz_mods_update_check"
 mkdir -p "$(dirname "$CACHE_FILE")"
 touch "$CACHE_FILE"
